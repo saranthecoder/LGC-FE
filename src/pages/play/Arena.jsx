@@ -929,8 +929,15 @@ export default function Arena({ user }) {
                     }}>
                       #{idx + 1}
                     </span>
-                    <span>{player.username}</span>
-                    {player.isBot && <span className="bot-badge" style={{ position: 'static' }}>AI</span>}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span>{player.name || player.username}</span>
+                        {player.isBot && <span className="bot-badge" style={{ position: 'static' }}>AI</span>}
+                      </div>
+                      {player.name && player.name !== player.username && (
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-gray)', fontWeight: 500 }}>{player.username}</span>
+                      )}
+                    </div>
                   </div>
                   <span style={{ color: 'var(--accent-orange)' }}>{player.score} XP</span>
                 </div>
@@ -1201,7 +1208,12 @@ export default function Arena({ user }) {
                         >
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             <span style={{ fontWeight: 800, color: 'var(--text-dim)' }}>#{idx + 1}</span>
-                            <span>{player.username}</span>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                              <span style={{ fontWeight: 600 }}>{player.name || player.username}</span>
+                              {player.name && player.name !== player.username && (
+                                <span style={{ fontSize: '0.75rem', color: 'var(--text-gray)' }}>{player.username}</span>
+                              )}
+                            </div>
                           </div>
                           <span style={{ color: 'var(--accent-orange)' }}>{player.score} XP</span>
                         </div>
