@@ -8,7 +8,7 @@ export default function Auth({ user, onLogin }) {
   const [isLogin, setIsLogin] = useState(true);
   const [role, setRole] = useState('student'); // 'student' | 'teacher'
   
-  const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -34,12 +34,12 @@ export default function Auth({ user, onLogin }) {
         onLogin(data.user, data.token);
       } else {
         // Sign Up
-        if (!username) {
-          setError('Username is required for sign up.');
+        if (!name) {
+          setError('Name is required for sign up.');
           setSubmitting(false);
           return;
         }
-        const data = await api.post('/auth/signup', { username, email, password, role });
+        const data = await api.post('/auth/signup', { name, email, password, role });
         onLogin(data.user, data.token);
       }
     } catch (err) {
@@ -99,13 +99,14 @@ export default function Auth({ user, onLogin }) {
           
           {!isLogin && (
             <div className="form-group">
-              <label>Student ID</label>
+              <label>Full Name</label>
               <input 
                 type="text" 
                 className="form-input" 
-                placeholder="e.g. SR1234 (Optional, leaves blank to auto-generate)" 
-                value={username}
-                onChange={e => setUsername(e.target.value)}
+                placeholder="e.g. John Doe" 
+                value={name}
+                onChange={e => setName(e.target.value)}
+                required
               />
             </div>
           )}
