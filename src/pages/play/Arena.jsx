@@ -141,6 +141,7 @@ export default function Arena({ user }) {
       code,
       username: nickname,
       userId: user?.id || null,
+      name: user?.name || null,
       isHost: isHost
     });
 
@@ -626,9 +627,14 @@ export default function Arena({ user }) {
 
             <div className="lobby-players-grid">
               {players.map((p, idx) => (
-                <div key={idx} className={`lobby-player-card ${p.isBot ? 'bot' : ''}`}>
-                  {p.username}
-                  {p.isBot && <span className="bot-badge">AI</span>}
+                <div key={idx} className={`lobby-player-card ${p.isBot ? 'bot' : ''}`} style={{ flexDirection: 'column', padding: '14px', gap: '6px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', textAlign: 'center' }}>
+                    <span style={{ fontWeight: 700, color: '#fff', fontSize: '0.95rem' }}>{p.name || p.username}</span>
+                    {p.name && p.name !== p.username && (
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-gray)' }}>{p.username}</span>
+                    )}
+                  </div>
+                  {p.isBot && <span className="bot-badge" style={{ position: 'static', marginTop: '4px' }}>AI</span>}
                 </div>
               ))}
             </div>
@@ -781,9 +787,16 @@ export default function Arena({ user }) {
                   {leaderboard.map((p, idx) => (
                     <tr key={p.username} className="table-row-hover" style={{ transition: 'var(--transition-smooth)' }}>
                       <td style={{ paddingLeft: '24px', fontWeight: 800 }}>#{idx + 1}</td>
-                      <td style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', border: 'none' }}>
-                        {p.username}
-                        {p.isBot && <span className="bot-badge" style={{ position: 'static' }}>AI</span>}
+                      <td style={{ fontWeight: 600, border: 'none' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', justifyContent: 'center' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span>{p.name || p.username}</span>
+                            {p.isBot && <span className="bot-badge" style={{ position: 'static' }}>AI</span>}
+                          </div>
+                          {p.name && p.name !== p.username && (
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-gray)', fontWeight: 500 }}>{p.username}</span>
+                          )}
+                        </div>
                       </td>
                       <td>{p.score} XP</td>
                       <td>
@@ -975,6 +988,23 @@ export default function Arena({ user }) {
                     ⏱️ {timer}s
                   </span>
                 )}
+              </div>
+
+              {/* Player Name Showcase */}
+              <div style={{ 
+                background: 'rgba(108, 66, 245, 0.08)',
+                border: '1px solid var(--primary-violet-glow)',
+                color: '#fff',
+                padding: '6px 14px',
+                borderRadius: '8px',
+                fontSize: '0.9rem',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <span style={{ color: 'var(--accent-orange)' }}>👤</span>
+                <span>{user?.name ? `${user.name} (${nickname})` : nickname}</span>
               </div>
               
               <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
@@ -1477,7 +1507,12 @@ export default function Arena({ user }) {
                         <span style={{ fontWeight: 800, color: 'var(--text-dim)', minWidth: '24px' }}>
                           {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`}
                         </span>
-                        <span>{player.username}</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                          <span style={{ fontWeight: 600 }}>{player.name || player.username}</span>
+                          {player.name && player.name !== player.username && (
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-gray)' }}>{player.username}</span>
+                          )}
+                        </div>
                       </div>
                       <span style={{ color: 'var(--accent-orange)' }}>{player.score} XP</span>
                     </div>
