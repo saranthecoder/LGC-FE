@@ -185,6 +185,7 @@ export default function Arena({ user }) {
     socketRef.current.on('question_changed', ({ currentQuestionIndex }) => {
       setFeedback(null);
       setRoundCorrectAnswer(null); // Clear answer at start of next round
+      hasAnsweredRef.current = false;
       setHasAnswered(false);
       setDoublePointsActive(false);
       setShieldActive(false);
@@ -264,6 +265,7 @@ export default function Arena({ user }) {
           correctOptionIndex: correctOptionIndex !== undefined ? correctOptionIndex : 0,
           pointsEarned: 0
         });
+        hasAnsweredRef.current = true;
         setHasAnswered(true);
       }
       triggerFeedbackStage();
@@ -423,6 +425,7 @@ export default function Arena({ user }) {
 
       // Don't set feedback locally - wait for server's answer_feedback event
       // which has the authoritative grading result
+      hasAnsweredRef.current = true;
       setHasAnswered(true);
       setStage('waiting');
     }
@@ -439,6 +442,7 @@ export default function Arena({ user }) {
 
     if (nextIndex >= questions.length) {
       setFeedback(null);
+      hasAnsweredRef.current = false;
       setHasAnswered(false);
       setDoublePointsActive(false);
 
@@ -478,6 +482,7 @@ export default function Arena({ user }) {
       }
     } else {
       setFeedback(null);
+      hasAnsweredRef.current = false;
       setHasAnswered(false);
       setDoublePointsActive(false);
       setShieldActive(false);
