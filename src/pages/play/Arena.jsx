@@ -209,6 +209,9 @@ export default function Arena({ user }) {
       clearInterval(timerIntervalRef.current);
       setGameState('completed');
       setReportId(reportId);
+      if (leaderboard) {
+        setLeaderboard(leaderboard);
+      }
       
       const myStat = leaderboard.find(p => p.username === nickname);
       if (myStat) {
@@ -383,7 +386,7 @@ export default function Arena({ user }) {
 
     // Verify grading locally
     if (!question.type || question.type === 'mcq' || question.type === 'tf') {
-      isCorrect = question.correctOptionIndex === Number(optionIdx);
+      isCorrect = Number(question.correctOptionIndex) === Number(optionIdx);
     } else if (question.type === 'fib') {
       isCorrect = question.correctAnswers[0]?.trim().toLowerCase() === optionIdx.toString().trim().toLowerCase();
     } else if (question.type === 'match') {

@@ -423,7 +423,7 @@ export default function QuizCreator() {
                         marginTop: '16px'
                       }}>
                         {q.options.map((opt, oIdx) => {
-                          const isCorrect = oIdx === q.correctOptionIndex;
+                          const isCorrect = Number(oIdx) === Number(q.correctOptionIndex);
                           return (
                             <div 
                               key={oIdx}

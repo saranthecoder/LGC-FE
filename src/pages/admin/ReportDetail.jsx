@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../../utils/api';
-import { ArrowLeft, Award, CheckCircle, XCircle, Info, Calendar } from 'lucide-react';
+import { ArrowLeft, Award, CheckCircle, XCircle, Info, Calendar, Download, Trash2 } from 'lucide-react';
 import gameAudio from '../../utils/AudioEngine';
+import { alerts } from '../../utils/alerts';
 
 export default function ReportDetail() {
   const { id } = useParams();
@@ -29,6 +30,69 @@ export default function ReportDetail() {
     fetchReportDetail();
   }, [id]);
 
+  const handleDownloadExcel = () => {
+    if (!report) return;
+    gameAudio.playTick();
+    
+    // Headers and Roster rows
+    const headers = ["Rank", "Student Name", "Student ID", "Score (XP)", "Accuracy (%)", "Correct Answers", "Total Questions"];
+    const rows = report.playerStats.map(stat => [
+      stat.rank,
+      stat.username,
+      stat.username,
+      stat.score,
+      `${stat.accuracy}%`,
+      stat.correctAnswers,
+      stat.totalQuestions
+    ]);
+    
+    // Metadata rows
+    const csvRows = [
+      ["Quiz Title", report.quizTitle],
+      ["Game PIN", report.sessionCode],
+      ["Class Average Accuracy", `${report.averageAccuracy}%`],
+      ["Total Players", report.totalPlayers],
+      ["Run Date", new Date(report.createdAt).toLocaleDateString()],
+      [],
+      headers,
+      ...rows
+    ];
+    
+    const csvContent = csvRows
+      .map(row => row.map(val => `"${(val ?? '').toString().replace(/"/g, '""')}"`).join(","))
+      .join("\r\n");
+      
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `${report.quizTitle.replace(/\s+/g, '_')}_Report_${report.sessionCode}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+  const handleDeleteReport = async () => {
+    if (!report) return;
+    gameAudio.playTick();
+
+    const confirmed = await alerts.confirm(
+      'Delete Report',
+      'Are you sure you want to delete this report? This will deduct the points (XP) earned by all student participants in this session.',
+      'Yes, Delete'
+    );
+    if (confirmed) {
+      try {
+        await api.delete(`/reports/${id}`);
+        alerts.success('Deleted', 'The report was deleted successfully and student scores were updated.');
+        navigate('/admin/reports');
+      } catch (err) {
+        console.error('Failed to delete report:', err);
+        alerts.error('Error', err.message || 'Failed to delete the report.');
+      }
+    }
+  };
+
   if (loading) return <div style={{ color: '#fff' }}>Loading Report Details...</div>;
   if (!report) return <div style={{ color: '#fff' }}>Report not found.</div>;
 
@@ -36,17 +100,37 @@ export default function ReportDetail() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <button 
-          className="btn btn-outline" 
-          style={{ padding: '8px' }}
-          onClick={() => { gameAudio.playTick(); navigate('/admin/reports'); }}
-        >
-          <ArrowLeft size={18} />
-        </button>
-        <div>
-          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem' }}>Report Details</h2>
-          <span style={{ color: 'var(--text-gray)', fontSize: '0.85rem' }}>PIN: {report.sessionCode}</span>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button 
+            className="btn btn-outline" 
+            style={{ padding: '8px' }}
+            onClick={() => { gameAudio.playTick(); navigate('/admin/reports'); }}
+          >
+            <ArrowLeft size={18} />
+          </button>
+          <div>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem' }}>Report Details</h2>
+            <span style={{ color: 'var(--text-gray)', fontSize: '0.85rem' }}>PIN: {report.sessionCode}</span>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <button
+            className="btn btn-primary"
+            onClick={handleDownloadExcel}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+          >
+            <Download size={18} />
+            <span>Download Excel (.csv)</span>
+          </button>
+          <button
+            className="btn btn-outline"
+            onClick={handleDeleteReport}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', borderColor: 'var(--accent-magenta)', color: 'var(--accent-magenta)' }}
+          >
+            <Trash2 size={18} />
+            <span>Delete Report</span>
+          </button>
         </div>
       </div>
 
